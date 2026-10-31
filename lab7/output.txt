@@ -1,0 +1,23 @@
+> mkdir -p ~/cron-lab
+cd ~/cron-lab
+> nano check_disk.py
+> python3 check_disk.py
+cat disk_report.txt
+Disk check completed!
+2026-10-31 23:48:13.944170 | WARNING | Free: 45.89 GB (10.0%)
+> crontab -e
+crontab: no crontab for ataidzhirgalbaev - using an empty one
+crontab: installing new crontab
+> crontab -l
+* * * * * /opt/homebrew/bin/python3 "$HOME/cron-lab/check_disk.py" >> "$HOME/cron-lab/cron.log" 2>&1
+> tail -f ~/cron-lab/disk_report.txt
+2026-10-31 23:48:13.944170 | WARNING | Free: 45.89 GB (10.0%)
+2026-10-31 23:49:01.108011 | WARNING | Free: 45.93 GB (10.0%)
+2026-10-31 23:50:00.266490 | WARNING | Free: 45.92 GB (10.0%)
+2026-10-31 23:51:00.442100 | WARNING | Free: 45.91 GB (10.0%)
+^C
+> 
+> cat ~/cron-lab/cron.log
+Disk check completed!
+Disk check completed!
+Disk check completed!
