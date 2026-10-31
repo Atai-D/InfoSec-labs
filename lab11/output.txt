@@ -1,0 +1,102 @@
+
+> docker run -it --name lab11-source ubuntu:24.04 bash
+
+root@86db358dc6d8:/# apt update
+.....
+Fetched 35.7 MB in 6s
+Reading package lists... Done
+All packages are up to date.
+
+root@86db358dc6d8:/# apt install -y \
+  git build-essential autoconf automake \
+  libncurses-dev pkg-config cmake
+
+The following NEW packages will be installed:
+.....
+0 upgraded, 159 newly installed, 0 to remove.
+Need to get 124 MB of archives.
+.....
+Setting up build-essential ...
+Setting up cmake ...
+Setting up git ...
+.....
+Processing triggers ...
+Done.
+
+root@86db358dc6d8:/# cd /opt
+root@86db358dc6d8:/opt# git clone https://github.com/abishekvashok/cmatrix.git
+
+Cloning into 'cmatrix'...
+.....
+Receiving objects: 100% (407/407), done.
+Resolving deltas: 100% (234/234), done.
+
+root@86db358dc6d8:/opt# cd cmatrix
+
+root@86db358dc6d8:/opt/cmatrix# ls
+AUTHORS  CMakeLists.txt  Makefile.am  README.md
+cmatrix.c  configure.ac  INSTALL
+.....
+
+root@86db358dc6d8:/opt/cmatrix# autoreconf -i
+configure.ac:5: warning: 'AM_CONFIG_HEADER' is obsolete.
+.....
+configure.ac:18: installing './compile'
+.....
+Makefile.am: installing './depcomp'
+
+root@86db358dc6d8:/opt/cmatrix# ./configure
+checking for gcc... gcc
+checking whether the C compiler works... yes
+checking for ncurses.h... yes
+.....
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating config.h
+.....
+
+root@86db358dc6d8:/opt/cmatrix# ./configure --prefix=/usr/local
+checking for gcc... gcc
+checking for main in -lncurses... yes
+.....
+config.status: creating Makefile
+config.status: creating config.h
+
+root@86db358dc6d8:/opt/cmatrix# make
+make all-am
+gcc -DHAVE_CONFIG_H ... -c -o cmatrix.o cmatrix.c
+gcc -g -O2 -o cmatrix cmatrix.o -lncurses -lncurses
+
+/usr/bin/ld: cmatrix.o: undefined reference to `waddnwstr'
+collect2: error: ld returned 1 exit status
+make: *** Error 2
+
+root@86db358dc6d8:/opt/cmatrix# ls -l cmatrix
+ls: cannot access 'cmatrix': No such file or directory
+
+root@86db358dc6d8:/opt/cmatrix# make install
+.....
+undefined reference to `waddnwstr'
+make: *** Error 1
+
+root@86db358dc6d8:/opt/cmatrix# which cmatrix
+
+.....
+
+root@86db358dc6d8:/opt/cmatrix# make
+make all-am
+make[1]: Entering directory '/opt/cmatrix'
+gcc -DHAVE_CONFIG_H ... -c -o cmatrix.o cmatrix.c
+gcc -g -O2 -o cmatrix cmatrix.o -lncurses -lncursesw -lncurses
+make[1]: Leaving directory '/opt/cmatrix'
+
+root@86db358dc6d8:/opt/cmatrix# make install
+make[1]: Entering directory '/opt/cmatrix'
+/usr/bin/mkdir -p '/usr/local/bin'
+/usr/bin/install -c cmatrix '/usr/local/bin'
+/usr/bin/mkdir -p '/usr/local/share/man/man1'
+/usr/bin/install -c -m 644 cmatrix.1 '/usr/local/share/man/man1'
+make[1]: Leaving directory '/opt/cmatrix'
+
+root@86db358dc6d8:/opt/cmatrix#
+
