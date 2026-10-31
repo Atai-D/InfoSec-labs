@@ -1,0 +1,13 @@
+> ls
+> touch file.txt
+> vim file.txt
+> vim file.txt
+> cat file.txt
+some text
+
+more text
+even more text
+> vim file.txt
+> vim file.txt
+
+// checked ":wq", ":!q", "yy", "h", "j", "k", "l", "0", "^", "$"
