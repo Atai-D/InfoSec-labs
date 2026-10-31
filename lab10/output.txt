@@ -1,0 +1,68 @@
+> docker run -d \
+  --name lab10-nginx \
+  -p 127.0.0.1:8000:8000 \
+  ubuntu:24.04 sleep infinity
+Unable to find image 'ubuntu:24.04' locally
+24.04: Pulling from library/ubuntu
+.....
+Status: Downloaded newer image for ubuntu:24.04
+0d5289a8760363037b51716c48ba686558f9b27b340770b1b4885236c014465a
+> docker exec -it lab10-nginx bash
+root@0d5289a87603:/# apt update
+Get:1 http://ports.ubuntu.com/ubuntu-ports noble InRelease
+.....
+Fetched 35.7 MB in 7s
+Reading package lists... Done
+All packages are up to date.
+root@0d5289a87603:/# apt install -y nginx nano python3 curl
+Reading package lists... Done
+Building dependency tree... Done
+.....
+0 upgraded, 46 newly installed, 0 to remove.
+Need to get 13.0 MB of archives.
+.....
+Unpacking nginx ...
+Setting up nginx ...
+Setting up python3 ...
+Setting up curl ...
+.....
+Processing triggers ...
+Done.
+root@0d5289a87603:/# nginx -v
+nginx version: nginx/1.24.0 (Ubuntu)
+root@0d5289a87603:/# nano /var/www/html/my_site.html
+root@0d5289a87603:/# nano /etc/nginx/sites-available/my_site
+root@0d5289a87603:/# ln -s \
+  /etc/nginx/sites-available/my_site \
+  /etc/nginx/sites-enabled/my_site
+root@0d5289a87603:/# ls -l /etc/nginx/sites-enabled/
+total 0
+default -> /etc/nginx/sites-available/default
+my_site -> /etc/nginx/sites-available/my_site
+root@0d5289a87603:/# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+root@0d5289a87603:/# nginx
+root@0d5289a87603:/# nginx -s reload
+[notice] signal process started
+root@0d5289a87603:/# mkdir -p /opt/lab10
+root@0d5289a87603:/# nano /opt/lab10/api.py
+root@0d5289a87603:/# python3 /opt/lab10/api.py > /tmp/lab10-api.log 2>&1 &
+[1] 2898
+root@0d5289a87603:/# curl http://127.0.0.1:5000/hello
+{"message": "Hello from Python API!", "time": "2026-10-31T23:39:36.195893"}
+root@0d5289a87603:/# curl -i http://localhost:8000/api/hello
+HTTP/1.1 200 OK
+Server: nginx/1.24.0 (Ubuntu)
+Content-Type: application/json
+.....
+{"message": "Hello from Python API!", "time": "2026-10-31T23:39:54.318653"}
+root@0d5289a87603:/# nginx -t
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+root@0d5289a87603:/# exit
+exit
+> docker stop lab10-nginx
+lab10-nginx
+> docker rm lab10-nginx
+lab10-nginx

@@ -1,0 +1,47 @@
+> brew --version
+Homebrew 7.0.7
+> brew update
+==> Updating Homebrew...
+hint: use --reapply-cherry-picks to include skipped commits
+hint: Disable this message with "git config advice.skippedCherryPicks false"
+.....
+> brew search nginx
+==> Formulae
+nginx
+> brew info nginx
+==> nginx: stable 1.31.8 (bottled), HEAD
+HTTP(S) server and reverse proxy, and IMAP/POP3 proxy server
+https://nginx.org/
+Not installed
+.....
+> brew deps nginx
+Warning: `brew deps` is not the actual runtime dependencies because `--installed` was not passed!
+This means dependencies may differ from a formula's declared dependencies.
+Hide these hints with `HOMEBREW_NO_ENV_HINTS=1` (see `man brew`).
+ca-certificates
+openssl@4
+pcre2
+> brew install nginx
+Warning: The following taps are not trusted:
+  minio/stable
+  redis-stack/redis-stack
+.....
+> brew services start nginx
+==> Successfully started `nginx` (label: sh.brew.nginx)
+> brew services list
+nginx -v
+nginx -t
+Name          Status  User             File
+nginx         started ataidzhirgalbaev ~/Library/LaunchAgents/sh.brew.nginx.plist
+postgresql@17 started ataidzhirgalbaev ~/Library/LaunchAgents/homebrew.mxcl.postgresql@17.plist
+redis         started ataidzhirgalbaev ~/Library/LaunchAgents/homebrew.mxcl.redis.plist
+unbound       none                     
+nginx version: nginx/1.31.8
+nginx: the configuration file /opt/homebrew/etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /opt/homebrew/etc/nginx/nginx.conf test is successful
+> brew services stop nginx
+brew uninstall nginx
+Stopping `nginx`... (might take a while)
+==> Successfully stopped `nginx` (label: sh.brew.nginx)
+Uninstalling /opt/homebrew/Cellar/nginx/1.31.8... (28 files, 2.8MB)
+.....
