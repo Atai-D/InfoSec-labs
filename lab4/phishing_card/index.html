@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Учебная форма карты</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 40px 16px; }
+    main { max-width: 370px; margin: 0 auto; background: white; padding: 28px; border: 1px solid #ddd; border-radius: 8px; }
+    h1 { font-size: 23px; margin-top: 0; }
+    p { font-size: 14px; color: #555; line-height: 1.5; }
+    label { display: block; font-size: 14px; margin-top: 16px; }
+    input, button { width: 100%; padding: 11px; margin-top: 7px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+    button { background: #2867d5; color: white; border: 0; margin-top: 22px; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: wait; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Учебная форма карты</h1>
+    <p>Демонстрация без оплаты. Используйте только вымышленные значения, уже указанные в форме.</p>
+    <form id="cardForm" autocomplete="off">
+      <label for="name">Имя на карте</label>
+      <input id="name" name="name" value="DEMO STUDENT" required>
+      <label for="number">Номер карты</label>
+      <input id="number" name="number" value="0000 0000 0000 0000" required>
+      <label for="expiry">Срок действия</label>
+      <input id="expiry" name="expiry" value="00/00" required>
+      <label for="cvv">Тестовый CVV</label>
+      <input id="cvv" name="cvv" value="000" required>
+      <button type="submit">Отправить пример</button>
+    </form>
+    <p id="result" role="status"></p>
+  </main>
+  <script>
+    const form = document.getElementById('cardForm');
+    const result = document.getElementById('result');
+    const button = form.querySelector('button');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      button.disabled = true;
+      result.textContent = 'Отправка…';
+      try {
+        const response = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form)))
+        });
+        const data = await response.json();
+        result.textContent = data.message || 'Ошибка сервера.';
+      } catch (error) {
+        result.textContent = 'Сервер недоступен. Запустите server.py и откройте http://127.0.0.1:8765/';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
