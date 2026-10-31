@@ -1,0 +1,19 @@
+> touch file.txt
+ls -la
+total 0
+drwxr-xr-x   3 ataidzhirgalbaev  staff   96 Oct 31 23:27 .
+drwxr-xr-x  12 ataidzhirgalbaev  staff  384 Oct 29 23:32 ..
+-rw-r--r--   1 ataidzhirgalbaev  staff    0 Oct 31 23:27 file.txt
+> chmod 754 file.txt
+> ls -la
+total 0
+drwxr-xr-x   3 ataidzhirgalbaev  staff   96 Oct 31 23:27 .
+drwxr-xr-x  12 ataidzhirgalbaev  staff  384 Oct 29 23:32 ..
+-rwxr-xr--   1 ataidzhirgalbaev  staff    0 Oct 31 23:27 file.txt
+> sudo chown root file.txt
+Password:
+> ls -la
+total 0
+drwxr-xr-x   3 ataidzhirgalbaev  staff   96 Oct 31 23:27 .
+drwxr-xr-x  12 ataidzhirgalbaev  staff  384 Oct 29 23:32 ..
+-rwxr-xr--   1 root              staff    0 Oct 31 23:27 file.txt
